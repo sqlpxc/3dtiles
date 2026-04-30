@@ -93,6 +93,17 @@ jobs:
           Copy-Item -Recurse target/release/gdal release/
           Copy-Item -Recurse target/release/proj release/
           Copy-Item -Recurse target/release/osgPlugins-3.6.5 release/
+
+          $vcpkgBin = "${{ github.workspace }}\vcpkg_installed\x64-windows-release\bin"
+
+          if (Test-Path $vcpkgBin) {
+            Copy-Item -Path "$vcpkgBin\*" -Destination release/ -Recurse -Force
+          } else {
+            Write-Host "vcpkg bin directory not found: $vcpkgBin"
+            Get-ChildItem "${{ github.workspace }}\vcpkg_installed" -Recurse -Directory | Select-Object FullName
+            exit 1
+          }
+          
           Compress-Archive -Path release/* -DestinationPath _3dtile-${{ inputs.platform }}.zip
           echo "artifact-name=${{ inputs.platform }}" >> $env:GITHUB_OUTPUT
 
